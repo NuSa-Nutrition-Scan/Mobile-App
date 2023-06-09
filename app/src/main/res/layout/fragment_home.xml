@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.home.HomeFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/green_field"
+        android:layout_width="0dp"
+        android:layout_height="480dp"
+        android:background="@color/green"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/titleHome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/home_title"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.161" />
+
+        <TextView
+            android:id="@+id/messageHome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/home_message"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="@+id/titleHome"
+            app:layout_constraintStart_toStartOf="@+id/titleHome"
+            app:layout_constraintTop_toBottomOf="@+id/titleHome" />
+
+        <TextView
+            android:id="@+id/totalCalories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:text="1000 cal"
+            android:textColor="@color/white"
+            android:textSize="72sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/titleHome"
+            app:layout_constraintStart_toStartOf="@+id/titleHome"
+            app:layout_constraintTop_toBottomOf="@+id/messageHome" />
+
+        <com.dicoding.picodiploma.nusa_nutritionscan.CustomUI.CustomButtonHistory
+            android:id="@+id/history_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp"
+            android:text="History"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.89"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.93" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/white_field"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/green_field">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rekomendasi Makanan"
+            android:textSize="24sp"
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="21dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginStart="21dp"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "920948007542",
+    "project_id": "cuki-5573f",
+    "storage_bucket": "cuki-5573f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920948007542:android:783df8252e4edf70cdb557",
+        "android_client_info": {
+          "package_name": "com.dicoding.picodiploma.nusa_nutritionscan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920948007542-e1bql8n693ae2nq3mb21fqkbrmnok467.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAP5Fh7qF7V9e3-EQF0AGHBcFOw4Uo4H8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920948007542-e1bql8n693ae2nq3mb21fqkbrmnok467.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
