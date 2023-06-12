@@ -25,6 +25,10 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
 import okio.IOException
 import java.io.File
+import java.sql.Time
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 
 val client = OkHttpClient()
 
@@ -84,6 +88,10 @@ class DashboardFragment : Fragment() {
 
     private fun uploadImage(){
         val user = firebase.currentUser
+        val date = SimpleDateFormat(
+            "dd-MMM-yyyy-HH:mm:ss",
+            Locale.US
+        ).format(System.currentTimeMillis())
         if (getFile != null){
 //            val file = reduceFileImage(getFile as File)
             val file = getFile
@@ -97,7 +105,7 @@ class DashboardFragment : Fragment() {
 //            val image = MultipartBody.Part.createFormData("photo", file.name, requestImageFile)
 
             val request = Request.Builder()
-                .url("https://storage.googleapis.com/nusa-bucket/${user?.uid}/nutrition/photo")
+                .url("https://storage.googleapis.com/nusa-bucket/${user?.uid}/nutrition/photo/${file.name.toString()}")
                 .post(image)
                 .build()
 
@@ -118,16 +126,17 @@ class DashboardFragment : Fragment() {
             })
 
             val data = hashMapOf(
-                "img_url" to request.url,
+                "create_at" to date,
+                "img_url" to request.url.toString(),
                 "user_id" to user?.uid
             )
 
             firestore.collection("photo").add(data)
                 .addOnSuccessListener {
-//                    Toast.makeText(requireActivity(), "Photo telah dikirim", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), "Photo telah dikirim", Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener {
-//                    Toast.makeText(requireActivity(), "Photo telah gagal dikirim", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), "Photo telah gagal dikirim", Toast.LENGTH_SHORT).show()
                 }
         }
     }
