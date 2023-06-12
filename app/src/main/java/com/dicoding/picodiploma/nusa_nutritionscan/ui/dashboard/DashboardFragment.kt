@@ -41,6 +41,7 @@ class DashboardFragment : Fragment() {
         binding.apply {
             customButtomGallery.setOnClickListener { takePhotoFromGallery() }
             customButtonCamera.setOnClickListener { takePhotoFromCamera() }
+            submitButton.setOnClickListener {  }
         }
     }
 

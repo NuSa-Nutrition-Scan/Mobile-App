@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
+import com.dicoding.picodiploma.nusa_nutritionscan.Activity.InputInformationActivity
 import com.dicoding.picodiploma.nusa_nutritionscan.Activity.LoginActivity
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentNotificationsBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -32,6 +34,9 @@ class NotificationsFragment : Fragment() {
 
         binding.nameProfile.text = user?.displayName
         binding.emailProfile.text = user?.email
+        if (user?.photoUrl != null){
+            Glide.with(this).load(user?.photoUrl).into(binding.imageProfile)
+        }
 
         return root
     }
@@ -42,6 +47,11 @@ class NotificationsFragment : Fragment() {
             firebaseAuth.signOut()
             val intentToLogin = Intent(requireActivity(), LoginActivity::class.java)
             startActivity(intentToLogin)
+        }
+
+        binding.textEditProfile.setOnClickListener {
+            val intentToEdit = Intent(requireActivity(), InputInformationActivity::class.java)
+            startActivity(intentToEdit)
         }
     }
 

@@ -23,6 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.dicoding.picodiploma.nusa_nutritionscan.CustomUI.CustomButtonSubmit
+        android:id="@+id/submit_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Submit"
@@ -65,6 +66,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5"
         app:layout_constraintVertical_bias="0.087"
-        tools:src="@drawable/picture_placeholder" />
+        app:srcCompat="@drawable/picture_placeholder" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

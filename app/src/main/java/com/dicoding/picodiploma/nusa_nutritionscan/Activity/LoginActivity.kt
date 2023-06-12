@@ -20,6 +20,15 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
+        val user = firebaseAuth.currentUser
+        if (user != null){
+            val userName = user.displayName
+            Toast.makeText(this, "Welcome $userName", Toast.LENGTH_SHORT).show()
+
+            val intentToMain = Intent(this@LoginActivity, MainActivity::class.java)
+            startActivity(intentToMain)
+            finish()
+        }
 
         supportActionBar?.hide()
 

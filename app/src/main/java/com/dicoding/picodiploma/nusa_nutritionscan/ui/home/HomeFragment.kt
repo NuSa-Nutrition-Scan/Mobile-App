@@ -38,6 +38,8 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val btnHistory: Button = view.findViewById(R.id.history_button)
+        val totalCaloriesToday = 0
+        binding.totalCalories.text = "$totalCaloriesToday cal"
 
         btnHistory.setOnClickListener {
 //            val historyPopUp = HistoryPopUpFragment()

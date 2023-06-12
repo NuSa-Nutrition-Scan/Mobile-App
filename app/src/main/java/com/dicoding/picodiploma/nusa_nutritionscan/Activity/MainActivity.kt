@@ -16,7 +16,6 @@ import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
 
     companion object{
@@ -64,5 +63,9 @@ class MainActivity : AppCompatActivity() {
                 10
             )
         }
+    }
+
+    override fun onBackPressed() {
+        finishAffinity()
     }
 }

@@ -30,7 +30,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.137"
         app:layout_editor_absoluteX="0dp"
-        tools:src="@drawable/ic_baseline_person_24dp" />
+        app:srcCompat="@drawable/ic_baseline_person_24dp"
+        tools:ignore="ImageContrastCheck"
+        android:contentDescription="photoProfile"/>
 
     <TextView
         android:id="@+id/nameProfile"
