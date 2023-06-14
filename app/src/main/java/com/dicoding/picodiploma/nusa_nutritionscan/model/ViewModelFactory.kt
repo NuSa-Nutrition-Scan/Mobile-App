@@ -13,9 +13,9 @@ class ViewModelFactory(private val pref: UserPreferenceDatastore) : ViewModelPro
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
                 LoginViewModel(pref) as T
             }
-//            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
-//                MainViewModel(pref) as T
-//            }
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
+                MainViewModel(pref) as T
+            }
             else -> throw java.lang.IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
         }
     }

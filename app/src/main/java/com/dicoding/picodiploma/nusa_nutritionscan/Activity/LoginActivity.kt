@@ -71,14 +71,6 @@ class LoginActivity : AppCompatActivity() {
         loginViewModel = ViewModelProvider(this, ViewModelFactory(UserPreferenceDatastore.getInstance(dataStore)))[LoginViewModel::class.java]
 
         loginViewModel.let { viewModel ->
-            viewModel.getUser().observe(this){
-                if (it.name!!.isNotEmpty()){
-                    val intentToMain = Intent(this@LoginActivity, MainActivity::class.java)
-                    startActivity(intentToMain)
-                    finish()
-                }
-            }
-
             viewModel.loginResult.observe(this) { login ->
                 viewModel.saveUser(
                     login.data?.name.toString(),
@@ -97,6 +89,7 @@ class LoginActivity : AppCompatActivity() {
                     alertDialog.setCancelable(false)
                     alertDialog.show()
                     Handler(Looper.getMainLooper()).postDelayed({
+                        alertDialog.dismiss()
                         val intentToMain = Intent(this, InputInformationActivity::class.java)
                         intentToMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         intentToMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

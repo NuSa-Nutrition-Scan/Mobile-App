@@ -9,27 +9,34 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.dicoding.picodiploma.nusa_nutritionscan.R
+import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
+import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentHomeBinding
-import com.dicoding.picodiploma.nusa_nutritionscan.ui.home.DialogFragment.HistoryPopUpFragment
+import com.dicoding.picodiploma.nusa_nutritionscan.model.MainViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 
 class HomeFragment : Fragment() {
-
     private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+    private var totalCaloriesToday: Int? = null
+    private val mainViewModel: MainViewModel by viewModels{
+        ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
+    }
+
+    companion object{
+        var CONFIRM = "confirm_food"
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+//        mainViewModel = ViewModelProvider(requireActivity())[mainViewModel::class.java]
+
+        setupViewModel()
 
         return root
     }
@@ -38,13 +45,10 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val btnHistory: Button = view.findViewById(R.id.history_button)
-        val totalCaloriesToday = 0
+        totalCaloriesToday = 0
         binding.totalCalories.text = "$totalCaloriesToday cal"
 
         btnHistory.setOnClickListener {
-//            val historyPopUp = HistoryPopUpFragment()
-//            historyPopUp.show((activity as AppCompatActivity).supportFragmentManager, "historyPopUp")
-
             val dialogBinding = layoutInflater.inflate(R.layout.fragment_history_pop_up, null)
 
             val dialogHistoryPopUp = Dialog(requireActivity())
@@ -59,6 +63,68 @@ class HomeFragment : Fragment() {
                 dialogHistoryPopUp.dismiss()
             }
         }
+
+        if (arguments != null){
+            val confirmationFood = arguments?.getString(CONFIRM)
+            if (confirmationFood == "confirm"){
+                val dialogBinding = layoutInflater.inflate(R.layout.fragment_success_pop_up, null)
+
+                val dialogConfirmPopUp = Dialog(requireActivity())
+                dialogConfirmPopUp.setContentView(dialogBinding)
+
+                dialogConfirmPopUp.setCancelable(true)
+                dialogConfirmPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                dialogConfirmPopUp.show()
+
+                val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+                btnCancel.setOnClickListener {
+                    dialogConfirmPopUp.dismiss()
+                }
+            }
+            else if(confirmationFood == "cancel"){
+                val dialogBinding = layoutInflater.inflate(R.layout.fragment_failed_pop_up, null)
+
+                val dialogCancelPopUp = Dialog(requireActivity())
+                dialogCancelPopUp.setContentView(dialogBinding)
+
+                dialogCancelPopUp.setCancelable(true)
+                dialogCancelPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                dialogCancelPopUp.show()
+
+                val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+                btnCancel.setOnClickListener {
+                    dialogCancelPopUp.dismiss()
+                }
+            }
+            else if(confirmationFood == "expired"){
+                val dialogBinding = layoutInflater.inflate(R.layout.fragment_expired_pop_up, null)
+
+                val dialogExpiredPopUp = Dialog(requireActivity())
+                dialogExpiredPopUp.setContentView(dialogBinding)
+
+                dialogExpiredPopUp.setCancelable(true)
+                dialogExpiredPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+                dialogExpiredPopUp.show()
+
+                val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+                btnCancel.setOnClickListener {
+                    dialogExpiredPopUp.dismiss()
+                }
+            }
+        }
+    }
+
+    private fun setupViewModel(){
+        mainViewModel.let {viewModel ->
+            viewModel.foodDetection.observe(requireActivity()){
+                changeCalories(it.data?.calories?.toInt())
+            }
+        }
+    }
+
+    private fun changeCalories(cal : Int?){
+        totalCaloriesToday = totalCaloriesToday?.plus(cal!!)
+        binding.totalCalories.text = "${totalCaloriesToday.toString()} cal"
     }
 
     override fun onDestroyView() {

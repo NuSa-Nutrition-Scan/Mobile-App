@@ -18,9 +18,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
-import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.ActivityMainBinding
 import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.MainViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -28,6 +28,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var loginViewModel: LoginViewModel
+    private lateinit var mainViewModel: MainViewModel
 
     companion object{
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         loginViewModel = ViewModelProvider(this, ViewModelFactory(UserPreferenceDatastore.getInstance(dataStore)))[LoginViewModel::class.java]
+        mainViewModel = ViewModelProvider(this, ViewModelFactory(UserPreferenceDatastore.getInstance(dataStore)))[MainViewModel::class.java]
 
         val navView: BottomNavigationView = binding.navView
 
@@ -65,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
             )
         )
+
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 

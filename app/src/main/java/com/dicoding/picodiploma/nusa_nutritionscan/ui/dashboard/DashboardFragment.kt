@@ -1,74 +1,94 @@
 package com.dicoding.picodiploma.nusa_nutritionscan.ui.dashboard
 
-import android.content.Context
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.dicoding.picodiploma.nusa_nutritionscan.API.ApiConfig
+import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.convertUriToFile
 import com.dicoding.picodiploma.nusa_nutritionscan.createCustomFile
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
+import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentDashboardBinding
-import com.dicoding.picodiploma.nusa_nutritionscan.model.FoodPredictionResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.MainViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
-import com.google.firebase.auth.FirebaseAuth
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
+import com.dicoding.picodiploma.nusa_nutritionscan.ui.home.HomeFragment
 import java.io.File
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "User")
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-    private lateinit var firebase: FirebaseAuth
+
     private val loginViewModel: LoginViewModel by viewModels{
         ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
     }
+    private val mainViewModel: MainViewModel by viewModels{
+        ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
+    }
     private lateinit var photoPath: String
+    private lateinit var token: String
     private var getFile: File? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        firebase = FirebaseAuth.getInstance()
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        setupViewModel()
 
         return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        val user = firebase.currentUser
-//        var token = ""
-//        user?.getIdToken(true)?.addOnCompleteListener { Task ->
-//            if (Task.isSuccessful){
-//                token = Task.result.token.toString()
-//                Toast.makeText(requireActivity(), "Token didapatkan", Toast.LENGTH_SHORT).show()
-//            } else{
-//                Toast.makeText(requireActivity(), "Token gagal didapatkan", Toast.LENGTH_SHORT).show()
-//            }
-//        }
+
         binding.apply {
             customButtomGallery.setOnClickListener { takePhotoFromGallery() }
             customButtonCamera.setOnClickListener { takePhotoFromCamera() }
             submitButton.setOnClickListener { uploadImage() }
         }
+    }
+
+    private fun setupViewModel(){
+        loginViewModel.getUser().observe(requireActivity()){
+            token = it.token.toString()
+        }
+
+        mainViewModel.let { viewModel ->
+            viewModel.isLoading.observe(requireActivity()){
+                progressValue(it)
+            }
+
+            viewModel.foodDetection.observe(requireActivity()){
+                createMessage(it.data?.name.toString())
+                createDialog(it.data?.name.toString())
+            }
+        }
+    }
+
+    private fun progressValue(isLoading: Boolean){
+        binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    private fun createMessage(food: String){
+        Toast.makeText(requireActivity(), "makanan yang dideteksi ${food.toString()}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {
@@ -97,42 +117,44 @@ class DashboardFragment : Fragment() {
     }
 
     private fun uploadImage(){
-        var token = ""
-        loginViewModel.getUser().observe(requireActivity()){
-            token = it.token.toString()
-        }
         if (getFile != null){
-//            val file = reduceFileImage(getFile as File)
             val file = getFile as File
-            val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
-
-            val client = ApiConfig.getApiService()
-            val call = client.uploadImage(bearer = "Bearer $token", body)
-            call.enqueue(object : retrofit2.Callback<FoodPredictionResponse>{
-                override fun onFailure(call: retrofit2.Call<FoodPredictionResponse>, t: Throwable) {
-                    Toast.makeText(requireActivity(), "Photo gagal dikirim ke URL", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onResponse(call: retrofit2.Call<FoodPredictionResponse>, response: retrofit2.Response<FoodPredictionResponse>) {
-                    if (response.isSuccessful){
-                        print("ini adalah : ${response.body()}")
-                        createMessage(true, response.body()?.data?.finalResult.toString())
-                    }
-                    else{
-                        createMessage(false, null.toString())
-                    }
-                }
-            })
+            mainViewModel.uploadImage(token, file)
         }
     }
 
-    private fun createMessage(bool: Boolean, makanan: String){
-        if (bool){
-            Toast.makeText(requireActivity(), "Photo telah dikirim ke URL. makanan adalah ${makanan.toString()}", Toast.LENGTH_SHORT).show()
+    private fun createDialog(food: String){
+        val dialogBinding = layoutInflater.inflate(R.layout.fragment_confirm_food, null)
+        val tvFood =  dialogBinding.findViewById<TextView>(R.id.food_detect)
+        tvFood.text = food.toString()
+
+        val dialogHistoryPopUp = Dialog(requireActivity())
+        dialogHistoryPopUp.setContentView(dialogBinding)
+
+        dialogHistoryPopUp.setCancelable(true)
+        dialogHistoryPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        dialogHistoryPopUp.show()
+
+        val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+        val btnConfirm: Button = dialogBinding.findViewById(R.id.btnConfirm)
+        val btnUnConfirm: TextView = dialogBinding.findViewById(R.id.txtCancel)
+
+        val homeFragment = HomeFragment()
+        val bundle = Bundle()
+
+        val fragmentManager = parentFragmentManager
+        btnCancel.setOnClickListener {
+            dialogHistoryPopUp.dismiss()
         }
-        else{
-            Toast.makeText(requireActivity(), "Photo gagal", Toast.LENGTH_SHORT).show()
+        btnConfirm.setOnClickListener {
+//            bundle.putString(HomeFragment.CONFIRM, "confirm")
+//            homeFragment.arguments = bundle
+//            fragmentManager.beginTransaction().replace(R.id.nav_host_fragment_activity_main, homeFragment , HomeFragment::class.java.simpleName).adafdfasdToBackStack(null).commit()
+        }
+        btnUnConfirm.setOnClickListener {
+//            bundle.putString(HomeFragment.CONFIRM, "cancel")
+//            homeFragment.arguments = bundle
+//            fragmentManager.beginTransaction().setReorderingAllowed(true).replace(R.id.nav_host_fragment_activity_main, homeFragment , HomeFragment::class.java.simpleName).addToBackStack(null).commit()
         }
     }
 

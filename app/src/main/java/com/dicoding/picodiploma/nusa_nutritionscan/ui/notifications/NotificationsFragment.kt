@@ -14,11 +14,11 @@ import androidx.fragment.app.viewModels
 import com.dicoding.picodiploma.nusa_nutritionscan.Activity.InputInformationActivity
 import com.dicoding.picodiploma.nusa_nutritionscan.Activity.LoginActivity
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
+import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentNotificationsBinding
 import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "User")
 class NotificationsFragment : Fragment() {
     private var _binding: FragmentNotificationsBinding? = null
     private val loginViewModel: LoginViewModel by viewModels {

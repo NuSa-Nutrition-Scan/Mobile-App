@@ -32,7 +32,7 @@
         android:theme="@style/Theme.NuSaNutritionScan"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.LoginActivity"
+            android:name=".Activity.SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,6 +40,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Activity.LoginActivity"
+            android:exported="false" />
         <activity
             android:name=".Activity.InputInformationActivity"
             android:exported="false" />

@@ -29,14 +29,15 @@
                 android:id="@+id/eat_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tipe Makanan"
+                android:text="Food Confirmation"
                 android:textAlignment="center"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.111" />
+                app:layout_constraintVertical_bias="0.146" />
 
             <TextView
                 android:id="@+id/food_eaten"
@@ -45,7 +46,8 @@
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="0dp"
                 android:layout_marginEnd="50dp"
-                android:text="You Already Eat Makanan"
+                android:text="Apakah makanan anda\nadalah"
+                android:textAlignment="center"
                 android:textColor="@color/green"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -54,263 +56,48 @@
                 app:layout_constraintTop_toBottomOf="@+id/eat_type" />
 
             <TextView
-                android:id="@+id/success_add_cal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="50dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="50dp"
-                android:text="Calories to Your Nutrition"
-                android:textColor="@color/green"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/food_cal" />
-
-            <TextView
-                android:id="@+id/food_cal"
+                android:id="@+id/food_detect"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:layout_marginBottom="290dp"
-                android:text="+ 1000 cal"
+                android:layout_marginBottom="200dp"
+                android:text="Makanan"
+                android:textAlignment="center"
                 android:textColor="@color/green"
                 android:textSize="36sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/food_eaten"
                 app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/food_eaten" />
+                app:layout_constraintTop_toBottomOf="@+id/food_eaten"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <Button
+                android:id="@+id/btnConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="96dp"
+                android:text="Benar"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/food_detect"
+                app:layout_constraintVertical_bias="0.41" />
 
             <TextView
-                android:id="@+id/nutrition_detail"
+                android:id="@+id/txtCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="48dp"
-                android:text="Nutrition Detail:"
-                android:textColor="@color/green"
-                android:textSize="16sp"
-                app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/food_cal" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nutrition_item1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="@+id/food_eaten"
-                app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/nutrition_detail">
-
-                <ImageView
-                    android:id="@+id/dot_point1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_brightness_1_24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/protein"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Protein"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toStartOf="@+id/nutrion_count1"
-                    app:layout_constraintHorizontal_bias="0.094"
-                    app:layout_constraintStart_toEndOf="@+id/dot_point1"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nutrion_count1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="%"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nutrition_item2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="@+id/food_eaten"
-                app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/nutrition_item1">
-
-                <ImageView
-                    android:id="@+id/dot_point2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_brightness_1_24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/karbo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Karbohidrat"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toStartOf="@+id/nutrion_count2"
-                    app:layout_constraintHorizontal_bias="0.127"
-                    app:layout_constraintStart_toEndOf="@+id/dot_point2"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nutrion_count2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="%"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nutrition_item3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="@+id/food_eaten"
-                app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/nutrition_item2">
-
-                <ImageView
-                    android:id="@+id/dot_point3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_brightness_1_24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/lemak"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Lemak"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toStartOf="@+id/nutrion_count3"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/dot_point3"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nutrion_count3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="%"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nutrition_item4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="@+id/food_eaten"
-                app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/nutrition_item3">
-
-                <ImageView
-                    android:id="@+id/dot_point4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_brightness_1_24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/vitamin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vitamin"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toStartOf="@+id/nutrion_count4"
-                    app:layout_constraintHorizontal_bias="0.097"
-                    app:layout_constraintStart_toEndOf="@+id/dot_point4"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nutrion_count4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="%"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nutrition_item5"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="@+id/food_eaten"
-                app:layout_constraintStart_toStartOf="@+id/food_eaten"
-                app:layout_constraintTop_toBottomOf="@+id/nutrition_item4">
-
-                <ImageView
-                    android:id="@+id/dot_point5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_brightness_1_24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/mineral"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mineral"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintEnd_toStartOf="@+id/nutrion_count5"
-                    app:layout_constraintHorizontal_bias="0.095"
-                    app:layout_constraintStart_toEndOf="@+id/dot_point5"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/nutrion_count5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="%"
-                    android:textColor="@color/green"
-                    android:textSize="18sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_begin="96dp" />
+                android:layout_marginStart="24dp"
+                android:text="Salah"
+                android:textColor="@color/red"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/btnConfirm"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/btnConfirm"
+                app:layout_constraintTop_toBottomOf="@+id/btnConfirm" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
