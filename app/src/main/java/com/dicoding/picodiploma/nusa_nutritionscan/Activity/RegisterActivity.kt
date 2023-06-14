@@ -1,26 +1,38 @@
 package com.dicoding.picodiploma.nusa_nutritionscan.Activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
+import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.ActivityRegisterBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
+import com.dicoding.picodiploma.nusa_nutritionscan.model.RegisterViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRegisterBinding
-    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var registerViewModel: RegisterViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
+        setupView()
+        setupViewModel()
+        setupAction()
+    }
 
-        supportActionBar?.hide()
-
+    private fun setupAction(){
         binding.signUpButton.setOnClickListener {
             val username = binding.nameInput.text.toString()
             val email = binding.emailInput.text.toString()
@@ -35,7 +47,7 @@ class RegisterActivity : AppCompatActivity() {
             } else if (pass.length < 8){
                 Toast.makeText(this, "Password Minimal 8 Karakter", Toast.LENGTH_SHORT).show()
             } else{
-                createUserWithEmailAndPassword(username, email, pass)
+                registerViewModel.register(username, email, pass)
             }
         }
 
@@ -45,29 +57,57 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun createUserWithEmailAndPassword(username: String, email: String, password: String){
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-            if (task.isSuccessful){
-                val user = firebaseAuth.currentUser
-                val profileUpdate = UserProfileChangeRequest.Builder().setDisplayName(username).build()
+    private fun setupView(){
+        @Suppress("DEPRECATION")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+        supportActionBar?.hide()
+    }
 
-                user?.updateProfile(profileUpdate)?.addOnCompleteListener { profileTask ->
-                    if (profileTask.isSuccessful){
-                        val displayName = user.displayName
-                        val email = user.email
-                        Toast.makeText(this, "User created: $displayName, $email", Toast.LENGTH_SHORT).show()
+    private fun setupViewModel(){
+        registerViewModel = ViewModelProvider(this, ViewModelFactory(UserPreferenceDatastore.getInstance(dataStore)))[RegisterViewModel::class.java]
 
-                        val intentToLogin = Intent(this@RegisterActivity, LoginActivity::class.java)
+        registerViewModel.let { viewModels ->
+            viewModels.message.observe(this){
+                if (it == "201"){
+                    val build = AlertDialog.Builder(this)
+                    build.setTitle("Good News")
+                    build.setMessage("Akun Berhasil Dibuat :)")
+                    val alertDialog: AlertDialog = build.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        alertDialog.dismiss()
+                        val intentToLogin = Intent(this, LoginActivity::class.java)
                         startActivity(intentToLogin)
-                    } else {
-                        val exception = profileTask.exception
-                        Toast.makeText(this, "Failed: $exception", Toast.LENGTH_SHORT).show()
-                    }
+                    }, 2000L)
                 }
-            } else {
-                val exception = task.exception
-                Toast.makeText(this, "Failed: $exception", Toast.LENGTH_SHORT).show()
+            }
+            viewModels.error.observe(this){
+                if (it == "400"){
+                    val build = AlertDialog.Builder(this)
+                    build.setTitle("Bad News")
+                    build.setMessage("Akun Gagal Dibuat :(")
+                    val alertDialog: AlertDialog = build.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        alertDialog.dismiss()
+                    }, 2000L)
+                }
+            }
+            viewModels.isLoading.observe(this){
+                progressValue(it)
             }
         }
+    }
+    private fun progressValue(isLoading: Boolean){
+        binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

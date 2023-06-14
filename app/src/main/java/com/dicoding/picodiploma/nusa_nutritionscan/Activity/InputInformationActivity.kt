@@ -1,8 +1,9 @@
 package com.dicoding.picodiploma.nusa_nutritionscan.Activity
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.ActivityInputInformationBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -10,7 +11,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.text.toLowerCase as toLowerCase
 
 class InputInformationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityInputInformationBinding
@@ -34,7 +34,11 @@ class InputInformationActivity : AppCompatActivity() {
         }
 
         setDataUser(user)
-        binding.submitButton.setOnClickListener { submitData(user) }
+        binding.submitButton.setOnClickListener {
+            submitData(user)
+            val intentToMain = Intent(this@InputInformationActivity, MainActivity::class.java)
+            startActivity(intentToMain)
+        }
     }
 
     private fun setDataUser(user: FirebaseUser?) {
@@ -98,14 +102,14 @@ class InputInformationActivity : AppCompatActivity() {
                 "target_kalori" to target_kalori
             )
 
-            firestore.collection("user_detail")
-                .add(data)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "data telah diubah", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "data gagal diubah", Toast.LENGTH_SHORT).show()
-                }
+//            firestore.collection("user_detail")
+//                .add(data)
+//                .addOnSuccessListener {
+//                    Toast.makeText(this, "data telah diubah", Toast.LENGTH_SHORT).show()
+//                }
+//                .addOnFailureListener {
+//                    Toast.makeText(this, "data gagal diubah", Toast.LENGTH_SHORT).show()
+//                }
         }
     }
 }

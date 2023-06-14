@@ -1,37 +1,37 @@
 package com.dicoding.picodiploma.nusa_nutritionscan.Activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
-import android.widget.Button
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.Toast
-import com.dicoding.picodiploma.nusa_nutritionscan.R
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
+import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.ActivityLoginBinding
-import com.google.firebase.auth.FirebaseAuth
+import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var firebaseAuth: FirebaseAuth
-
+    private lateinit var loginViewModel: LoginViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
-        val user = firebaseAuth.currentUser
-        if (user != null){
-            val userName = user.displayName
-            Toast.makeText(this, "Welcome $userName", Toast.LENGTH_SHORT).show()
+        setupView()
+        setupViewModel()
+        setupAction()
+    }
 
-            val intentToMain = Intent(this@LoginActivity, MainActivity::class.java)
-            startActivity(intentToMain)
-            finish()
-        }
-
-        supportActionBar?.hide()
-
+    private fun setupAction(){
         binding.signupLink.setOnClickListener {
             val intentToRegister = Intent(this@LoginActivity, RegisterActivity::class.java)
             startActivity(intentToRegister)
@@ -43,32 +43,100 @@ class LoginActivity : AppCompatActivity() {
             val pass = binding.passInput.text.toString()
 
             if (email.isEmpty()){
-
+                Toast.makeText(this, "Email Harus Diisi", Toast.LENGTH_SHORT).show()
             } else if(pass.isEmpty()){
-
+                Toast.makeText(this, "Password Harus Diisi", Toast.LENGTH_SHORT).show()
             } else if(pass.length < 8){
-
+                Toast.makeText(this, "Password Minimal 8 Karakter", Toast.LENGTH_SHORT).show()
             } else {
-                signInWithEmailAndPassword(email, pass)
+                loginViewModel.login(email, pass)
             }
         }
     }
 
-    private fun signInWithEmailAndPassword(email: String, password: String){
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-            if (task.isSuccessful){
-                val user = firebaseAuth.currentUser
-                val userName = user?.displayName
-                Toast.makeText(this, "Welcome $userName", Toast.LENGTH_SHORT).show()
+    private fun setupView(){
+        @Suppress("DEPRECATION")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            window.insetsController?.hide(WindowInsets.Type.statusBars())
+        } else {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+        }
+        supportActionBar?.hide()
+    }
 
-                val intentToMain = Intent(this@LoginActivity, MainActivity::class.java)
-                startActivity(intentToMain)
-                finish()
+    private fun setupViewModel(){
+        loginViewModel = ViewModelProvider(this, ViewModelFactory(UserPreferenceDatastore.getInstance(dataStore)))[LoginViewModel::class.java]
+
+        loginViewModel.let { viewModel ->
+            viewModel.getUser().observe(this){
+                if (it.name!!.isNotEmpty()){
+                    val intentToMain = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intentToMain)
+                    finish()
+                }
             }
-            else{
-                val exception = task.exception
-                Toast.makeText(this, "Failed: $exception", Toast.LENGTH_SHORT).show()
+
+            viewModel.loginResult.observe(this) { login ->
+                viewModel.saveUser(
+                    login.data?.name.toString(),
+                    login.data?.id.toString(),
+                    login.data?.token.toString(),
+                    login.data?.refreshToken.toString()
+                )
+            }
+
+            viewModel.message.observe(this) { message ->
+                if (message == "200") {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Good News")
+                    builder.setMessage("Login Berhasil :)")
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        val intentToMain = Intent(this, InputInformationActivity::class.java)
+                        intentToMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        intentToMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intentToMain)
+                        finish()
+                    }, 2000L)
+                }
+            }
+
+            viewModel.error.observe(this) { error ->
+                if (error == "400") {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Bad News")
+                    builder.setMessage("Email Tidak Valid :(")
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        alertDialog.dismiss()
+                    }, 2000L)
+                }
+                if (error == "401") {
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Bad News")
+                    builder.setMessage("User Tidak Ada :(")
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.setCancelable(false)
+                    alertDialog.show()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        alertDialog.dismiss()
+                    }, 2000L)
+                }
+            }
+            viewModel.isLoading.observe(this) { isLoading ->
+                progressValue(isLoading)
             }
         }
+    }
+
+    private fun progressValue(isLoading: Boolean){
+        binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

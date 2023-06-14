@@ -1,11 +1,10 @@
 package com.dicoding.picodiploma.nusa_nutritionscan.ui.dashboard
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -14,37 +13,38 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.fragment.app.Fragment
-import androidx.loader.content.AsyncTaskLoader
-import com.dicoding.picodiploma.nusa_nutritionscan.*
+import androidx.fragment.app.viewModels
+import com.dicoding.picodiploma.nusa_nutritionscan.API.ApiConfig
+import com.dicoding.picodiploma.nusa_nutritionscan.convertUriToFile
+import com.dicoding.picodiploma.nusa_nutritionscan.createCustomFile
+import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentDashboardBinding
+import com.dicoding.picodiploma.nusa_nutritionscan.model.FoodPredictionResponse
+import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okio.IOException
 import java.io.File
-import java.sql.Time
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
-import java.util.*
 
-val client = OkHttpClient()
-
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "User")
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-
-    private lateinit var firestore: FirebaseFirestore
     private lateinit var firebase: FirebaseAuth
-
+    private val loginViewModel: LoginViewModel by viewModels{
+        ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
+    }
     private lateinit var photoPath: String
     private var getFile: File? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         firebase = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
 
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -54,6 +54,16 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+//        val user = firebase.currentUser
+//        var token = ""
+//        user?.getIdToken(true)?.addOnCompleteListener { Task ->
+//            if (Task.isSuccessful){
+//                token = Task.result.token.toString()
+//                Toast.makeText(requireActivity(), "Token didapatkan", Toast.LENGTH_SHORT).show()
+//            } else{
+//                Toast.makeText(requireActivity(), "Token gagal didapatkan", Toast.LENGTH_SHORT).show()
+//            }
+//        }
         binding.apply {
             customButtomGallery.setOnClickListener { takePhotoFromGallery() }
             customButtonCamera.setOnClickListener { takePhotoFromCamera() }
@@ -87,57 +97,42 @@ class DashboardFragment : Fragment() {
     }
 
     private fun uploadImage(){
-        val user = firebase.currentUser
-        val date = SimpleDateFormat(
-            "dd-MMM-yyyy-HH:mm:ss",
-            Locale.US
-        ).format(System.currentTimeMillis())
+        var token = ""
+        loginViewModel.getUser().observe(requireActivity()){
+            token = it.token.toString()
+        }
         if (getFile != null){
 //            val file = reduceFileImage(getFile as File)
-            val file = getFile
-            val requestImageFile = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            val image = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("image", file?.name,
-                    file!!.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                )
-                .build()
-//            val image = MultipartBody.Part.createFormData("photo", file.name, requestImageFile)
+            val file = getFile as File
+            val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+            val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-            val request = Request.Builder()
-                .url("https://storage.googleapis.com/nusa-bucket/${user?.uid}/nutrition/photo/${file.name.toString()}")
-                .post(image)
-                .build()
-
-            client.newCall(request).enqueue(object : Callback{
-                override fun onFailure(call: Call, e: IOException) {
-                    Toast.makeText(requireActivity(), "Photo telah dikirim ke URL", Toast.LENGTH_SHORT).show()
+            val client = ApiConfig.getApiService()
+            val call = client.uploadImage(bearer = "Bearer $token", body)
+            call.enqueue(object : retrofit2.Callback<FoodPredictionResponse>{
+                override fun onFailure(call: retrofit2.Call<FoodPredictionResponse>, t: Throwable) {
+                    Toast.makeText(requireActivity(), "Photo gagal dikirim ke URL", Toast.LENGTH_SHORT).show()
                 }
 
-                override fun onResponse(call: Call, response: Response) {
-                    Looper.prepare()
+                override fun onResponse(call: retrofit2.Call<FoodPredictionResponse>, response: retrofit2.Response<FoodPredictionResponse>) {
                     if (response.isSuccessful){
-                        Toast.makeText(requireActivity(), "Photo telah dikirim ke URL", Toast.LENGTH_SHORT).show()
+                        print("ini adalah : ${response.body()}")
+                        createMessage(true, response.body()?.data?.finalResult.toString())
                     }
                     else{
-                        Toast.makeText(requireActivity(), "Photo gagal", Toast.LENGTH_SHORT).show()
+                        createMessage(false, null.toString())
                     }
                 }
             })
+        }
+    }
 
-            val data = hashMapOf(
-                "create_at" to date,
-                "img_url" to request.url.toString(),
-                "user_id" to user?.uid
-            )
-
-            firestore.collection("photo").add(data)
-                .addOnSuccessListener {
-                    Toast.makeText(requireActivity(), "Photo telah dikirim", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireActivity(), "Photo telah gagal dikirim", Toast.LENGTH_SHORT).show()
-                }
+    private fun createMessage(bool: Boolean, makanan: String){
+        if (bool){
+            Toast.makeText(requireActivity(), "Photo telah dikirim ke URL. makanan adalah ${makanan.toString()}", Toast.LENGTH_SHORT).show()
+        }
+        else{
+            Toast.makeText(requireActivity(), "Photo gagal", Toast.LENGTH_SHORT).show()
         }
     }
 
