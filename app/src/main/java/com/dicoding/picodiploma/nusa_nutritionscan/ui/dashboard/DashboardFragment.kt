@@ -19,7 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.convertUriToFile
 import com.dicoding.picodiploma.nusa_nutritionscan.createCustomFile
@@ -35,11 +35,10 @@ import java.io.File
 class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
-
-    private val loginViewModel: LoginViewModel by viewModels{
+    private val loginViewModel: LoginViewModel by activityViewModels{
         ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
     }
-    private val mainViewModel: MainViewModel by viewModels{
+    private val mainViewModel: MainViewModel by activityViewModels{
         ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
     }
     private lateinit var photoPath: String
@@ -72,11 +71,11 @@ class DashboardFragment : Fragment() {
         }
 
         mainViewModel.let { viewModel ->
-            viewModel.isLoading.observe(requireActivity()){
+            viewModel.isLoading.observe(viewLifecycleOwner){
                 progressValue(it)
             }
 
-            viewModel.foodDetection.observe(requireActivity()){
+            viewModel.foodDetection.observe(viewLifecycleOwner){
                 createMessage(it.data?.name.toString())
                 createDialog(it.data?.name.toString())
             }
@@ -126,7 +125,7 @@ class DashboardFragment : Fragment() {
     private fun createDialog(food: String){
         val dialogBinding = layoutInflater.inflate(R.layout.fragment_confirm_food, null)
         val tvFood =  dialogBinding.findViewById<TextView>(R.id.food_detect)
-        tvFood.text = food.toString()
+        tvFood.text = food
 
         val dialogHistoryPopUp = Dialog(requireActivity())
         dialogHistoryPopUp.setContentView(dialogBinding)
@@ -149,7 +148,7 @@ class DashboardFragment : Fragment() {
         btnConfirm.setOnClickListener {
 //            bundle.putString(HomeFragment.CONFIRM, "confirm")
 //            homeFragment.arguments = bundle
-//            fragmentManager.beginTransaction().replace(R.id.nav_host_fragment_activity_main, homeFragment , HomeFragment::class.java.simpleName).adafdfasdToBackStack(null).commit()
+//            fragmentManager.beginTransaction().replace(R.id.nav_host_fragment_activity_main, homeFragment , HomeFragment::class.java.simpleName).addToBackStack(null).commit()
         }
         btnUnConfirm.setOnClickListener {
 //            bundle.putString(HomeFragment.CONFIRM, "cancel")

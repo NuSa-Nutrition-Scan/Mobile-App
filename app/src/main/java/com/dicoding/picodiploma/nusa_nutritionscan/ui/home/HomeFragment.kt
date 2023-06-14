@@ -9,8 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
@@ -22,7 +23,8 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var totalCaloriesToday: Int? = null
-    private val mainViewModel: MainViewModel by viewModels{
+//    private val viewModel: MainViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels{
         ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
     }
 
@@ -34,9 +36,8 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-//        mainViewModel = ViewModelProvider(requireActivity())[mainViewModel::class.java]
-
-        setupViewModel()
+        totalCaloriesToday = 0
+        binding.totalCalories.text = "$totalCaloriesToday cal"
 
         return root
     }
@@ -45,8 +46,13 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val btnHistory: Button = view.findViewById(R.id.history_button)
-        totalCaloriesToday = 0
-        binding.totalCalories.text = "$totalCaloriesToday cal"
+
+        mainViewModel.let {viewModel ->
+            viewModel.foodDetection.observe(viewLifecycleOwner){
+                Toast.makeText(requireActivity(), "calories: ${it.data?.calories.toString()}", Toast.LENGTH_SHORT).show()
+                changeCalories(it.data?.calories)
+            }
+        }
 
         btnHistory.setOnClickListener {
             val dialogBinding = layoutInflater.inflate(R.layout.fragment_history_pop_up, null)
@@ -110,14 +116,6 @@ class HomeFragment : Fragment() {
                 btnCancel.setOnClickListener {
                     dialogExpiredPopUp.dismiss()
                 }
-            }
-        }
-    }
-
-    private fun setupViewModel(){
-        mainViewModel.let {viewModel ->
-            viewModel.foodDetection.observe(requireActivity()){
-                changeCalories(it.data?.calories?.toInt())
             }
         }
     }
