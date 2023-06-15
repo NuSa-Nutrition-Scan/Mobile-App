@@ -4,75 +4,55 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
+import androidx.lifecycle.ViewModelProvider
+import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
+import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.ActivityInputInformationBinding
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
-import java.util.*
+import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
+import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 
 class InputInformationActivity : AppCompatActivity() {
     private lateinit var binding: ActivityInputInformationBinding
-    private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
+    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var userName: String
+    private lateinit var refresh_token: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInputInformationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        firebaseAuth = FirebaseAuth.getInstance()
-        val user = firebaseAuth.currentUser
-        firestore = FirebaseFirestore.getInstance()
-
         supportActionBar?.hide()
-        binding.nameProfile.text = user?.displayName
-        binding.emailProfile.text = user?.email
-        if (user?.photoUrl != null) {
-            Glide.with(this).load(user.photoUrl).into(binding.imageProfile)
+
+        loginViewModel = ViewModelProvider(this, ViewModelFactory(UserPreferenceDatastore.getInstance(dataStore)))[LoginViewModel::class.java]
+
+        var token = ""
+        loginViewModel.getUser().observe(this){
+            binding.nameProfile.text = it.name
+            binding.emailProfile.text = it.email
+            token = it.token.toString()
+            userName = it.name.toString()
+            refresh_token = it.refresh_token.toString()
         }
 
-        setDataUser(user)
+        loginViewModel.message.observe(this){
+            if (it == "200"){
+                val intentToMain = Intent(this@InputInformationActivity, MainActivity::class.java)
+                startActivity(intentToMain)
+            }
+        }
+
         binding.submitButton.setOnClickListener {
-            submitData(user)
-            val intentToMain = Intent(this@InputInformationActivity, MainActivity::class.java)
-            startActivity(intentToMain)
+            submitData(token)
         }
     }
 
-    private fun setDataUser(user: FirebaseUser?) {
-        firestore.collection("user_detail")
-            .whereEqualTo("user_id", user?.uid)
-            .limit(1)
-            .get()
-            .addOnSuccessListener {
-                for (documentSnapshot in it) {
-                    val user_detail = documentSnapshot.data
-                    val JK = user_detail?.get("jenis_kelamin") as String?
-                    if (JK == "M"){
-                        binding.JKED.setText("Laki-Laki")
-                    } else{
-                        binding.JKED.setText("Perempuan")
-                    }
-                    binding.umurED.setText(user_detail?.get("umur") as String?)
-                    binding.BBED.setText(user_detail?.get("berat_badan") as String?)
-                    binding.TBED.setText(user_detail?.get("tinggi_badan") as String?)
-                    binding.caloriED.setText(user_detail?.get("target_kalori") as String?)
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "data gagal diambil", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun submitData(user: FirebaseUser?) {
+    private fun submitData(token: String) {
         val jenis_kelamin = binding.JKED.text.toString()
         val umur = binding.umurED.text.toString()
         val berat_badan = binding.BBED.text.toString()
         val tinggi_bandan = binding.TBED.text.toString()
         val target_kalori = binding.caloriED.text.toString()
-        val date = SimpleDateFormat("dd-MMM-yyyy-HH:mm:ss", Locale.US).format(System.currentTimeMillis())
 
         if (jenis_kelamin.isEmpty()) {
             Toast.makeText(this, "Jenis Kelamin tidak boleh kosong", Toast.LENGTH_SHORT).show()
@@ -92,24 +72,7 @@ class InputInformationActivity : AppCompatActivity() {
             } else{
                 JK = "F"
             }
-            val data = hashMapOf(
-                "create_at" to date.toString(),
-                "user_id" to user?.uid,
-                "jenis_kelamin" to JK.toString(),
-                "umur" to umur,
-                "berat_badan" to berat_badan,
-                "tinggi_badan" to tinggi_bandan,
-                "target_kalori" to target_kalori
-            )
-
-//            firestore.collection("user_detail")
-//                .add(data)
-//                .addOnSuccessListener {
-//                    Toast.makeText(this, "data telah diubah", Toast.LENGTH_SHORT).show()
-//                }
-//                .addOnFailureListener {
-//                    Toast.makeText(this, "data gagal diubah", Toast.LENGTH_SHORT).show()
-//                }
+            loginViewModel.updateProfile(userName,refresh_token,token, JK.toString(), umur, berat_badan,tinggi_bandan,target_kalori)
         }
     }
 }

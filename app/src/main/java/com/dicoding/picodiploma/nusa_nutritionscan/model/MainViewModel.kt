@@ -6,10 +6,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.API.ApiConfig
 import com.dicoding.picodiploma.nusa_nutritionscan.API.ImageUploadResponse
+import com.dicoding.picodiploma.nusa_nutritionscan.Activity.FoodRecommendResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
@@ -21,6 +25,9 @@ class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
 
     private val _imageUpload = MutableLiveData<ImageUploadResponse>()
     val imageUpload: LiveData<ImageUploadResponse> = _imageUpload
+
+    private val _listFood = MutableLiveData<List<FoodRecommendResponse>>()
+    val listFood: LiveData<List<FoodRecommendResponse>> = _listFood
 
     companion object{
         private const val tag = "MainViewModel"
@@ -74,6 +81,27 @@ class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
                 else{
                     Log.e(tag, "onFailure: ${response.message()}")
                 }
+            }
+        })
+    }
+
+    fun foodRecommend(token: String){
+        _isLoading.value = true
+        val client = ApiConfig.getApiService().getRecommend(bearer = "Bearer $token")
+        client.enqueue(object : Callback<FoodRecommendResponse>{
+            override fun onResponse(call: Call<FoodRecommendResponse>, response: Response<FoodRecommendResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful){
+                    _listFood.value = response.body() as List<FoodRecommendResponse>
+                }
+                else{
+                    Log.e(tag, "onFailure: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<FoodRecommendResponse>, t: Throwable) {
+                _isLoading.value = false
+                Log.e(tag, "onFailure: ${t.message}")
             }
         })
     }

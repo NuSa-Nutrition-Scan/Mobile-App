@@ -120,7 +120,35 @@ class LoginViewModel (private val pref: UserPreferenceDatastore): ViewModel() {
         })
     }
 
-    fun updateProfile(){
+    fun updateProfile(
+        userName: String,
+        refreshToken : String,
+        token: String,
+        JK: String,
+        Umur: String,
+        BB: String,
+        TB: String,
+        TK: String
+    ){
+        _isLoading.value = true
+        val client = ApiConfig.getApiService().UpdateProfile(bearer = "Bearer $token", userName, BB.toInt(), TB.toInt(), JK, TK.toInt(), Umur.toInt(), 3, refreshToken)
+        client.enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                when (response.code()) {
+                    200 -> {
+                        message.postValue("200")
+                    }
+                    400 -> error.postValue("400")
+                    401 -> error.postValue("401")
+                    else -> error.postValue("ERROR ${response.code()} : ${response.message()}")
+                }
+                _isLoading.value = false
+            }
 
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                _isLoading.value = true
+                Toast.makeText(null, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

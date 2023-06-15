@@ -16,6 +16,7 @@ import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentHomeBinding
+import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.MainViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
 
@@ -26,9 +27,23 @@ class HomeFragment : Fragment() {
     private val mainViewModel: MainViewModel by activityViewModels{
         ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
     }
+    private val loginViewModel: LoginViewModel by activityViewModels{
+        ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
+    }
+    private lateinit var token: String
 
     companion object{
         var CONFIRM = "confirm_food"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        loginViewModel.getUser().observe(viewLifecycleOwner){
+            token = it.token.toString()
+        }
+
+        mainViewModel.foodRecommend(token)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -50,6 +65,10 @@ class HomeFragment : Fragment() {
             viewModel.foodDetection.observe(viewLifecycleOwner){
                 Toast.makeText(requireActivity(), "calories: ${it.data?.calories.toString()}", Toast.LENGTH_SHORT).show()
                 changeCalories(it.data?.calories)
+            }
+
+            viewModel.listFood.observe(viewLifecycleOwner){
+//               disini akan dibuat fungsi penghubung adapter untuk menampilkan data recommend
             }
         }
 

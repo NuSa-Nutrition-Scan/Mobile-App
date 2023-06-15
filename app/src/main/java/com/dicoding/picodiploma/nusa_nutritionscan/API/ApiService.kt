@@ -1,10 +1,12 @@
 package com.dicoding.picodiploma.nusa_nutritionscan.API
 
+import com.dicoding.picodiploma.nusa_nutritionscan.Activity.FoodRecommendResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.data.LoginResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.data.SignUpResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.model.FoodPredictionResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiService {
@@ -12,9 +14,19 @@ interface ApiService {
     @POST("auth/signin")
     fun Login(@Body body: RequestBody): retrofit2.Call<LoginResponse>
 
-    @Headers("Content-Type: application/json")
-    @POST("settings/profile/update")
-    fun UpdateLogin(@Body body: RequestBody): retrofit2.Call<LoginResponse>
+    @FormUrlEncoded
+    @PATCH("settings/profile/update")
+    fun UpdateProfile(
+        @Header("Authorization") bearer: String?,
+        @Field("name") name: String?,
+        @Field("weight") weight: Int?,
+        @Field("height") height: Int?,
+        @Field("sex") sex: String?,
+        @Field("calories_target") calories_target: Int?,
+        @Field("age") age: Int?,
+        @Field("eat_per_day") eat_per_day: Int?,
+        @Field("refresh_token") refresh_token: String?
+    ): retrofit2.Call<LoginResponse>
 
     @Headers("Content-Type: application/json")
     @POST("auth/signup")
@@ -47,4 +59,10 @@ interface ApiService {
         @Header("Authorization") bearer: String?,
         @Part file: MultipartBody.Part
     ): retrofit2.Call<ImageUploadResponse>
+
+    @Headers("Content-Type: application/json")
+    @GET("/nutrition/recommendation")
+    fun getRecommend(
+        @Header("Authorization") bearer: String?
+    ): Call<FoodRecommendResponse>
 }

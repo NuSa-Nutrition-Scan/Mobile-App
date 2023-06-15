@@ -26,11 +26,10 @@ class NotificationsFragment : Fragment() {
         _binding = FragmentNotificationsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-//        binding.nameProfile.text = user?.displayName
-//        binding.emailProfile.text = user?.email
-//        if (user?.photoUrl != null){
-//            Glide.with(this).load(user?.photoUrl).into(binding.imageProfile)
-//        }
+        loginViewModel.getUser().observe(requireActivity()){
+            binding.nameProfile.text = it.name
+            binding.emailProfile.text = it.email
+        }
 
         return root
     }
