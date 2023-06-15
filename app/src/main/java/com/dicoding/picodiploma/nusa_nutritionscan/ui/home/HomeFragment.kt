@@ -23,7 +23,6 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var totalCaloriesToday: Int? = null
-//    private val viewModel: MainViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels{
         ViewModelFactory(UserPreferenceDatastore.getInstance(requireActivity().dataStore))
     }

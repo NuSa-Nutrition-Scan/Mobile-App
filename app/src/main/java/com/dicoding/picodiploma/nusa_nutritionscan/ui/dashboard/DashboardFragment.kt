@@ -26,10 +26,10 @@ import com.dicoding.picodiploma.nusa_nutritionscan.createCustomFile
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
 import com.dicoding.picodiploma.nusa_nutritionscan.databinding.FragmentDashboardBinding
+import com.dicoding.picodiploma.nusa_nutritionscan.model.Data
 import com.dicoding.picodiploma.nusa_nutritionscan.model.LoginViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.MainViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.model.ViewModelFactory
-import com.dicoding.picodiploma.nusa_nutritionscan.ui.home.HomeFragment
 import java.io.File
 
 class DashboardFragment : Fragment() {
@@ -44,7 +44,6 @@ class DashboardFragment : Fragment() {
     private lateinit var photoPath: String
     private lateinit var token: String
     private var getFile: File? = null
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
@@ -77,7 +76,7 @@ class DashboardFragment : Fragment() {
 
             viewModel.foodDetection.observe(viewLifecycleOwner){
                 createMessage(it.data?.name.toString())
-                createDialog(it.data?.name.toString())
+                createDialog(it.data?.name.toString(), it.data)
             }
         }
     }
@@ -118,11 +117,11 @@ class DashboardFragment : Fragment() {
     private fun uploadImage(){
         if (getFile != null){
             val file = getFile as File
-            mainViewModel.uploadImage(token, file)
+            mainViewModel.foodPrediction(token, file)
         }
     }
 
-    private fun createDialog(food: String){
+    private fun createDialog(food: String, data: Data?){
         val dialogBinding = layoutInflater.inflate(R.layout.fragment_confirm_food, null)
         val tvFood =  dialogBinding.findViewById<TextView>(R.id.food_detect)
         tvFood.text = food
@@ -138,22 +137,71 @@ class DashboardFragment : Fragment() {
         val btnConfirm: Button = dialogBinding.findViewById(R.id.btnConfirm)
         val btnUnConfirm: TextView = dialogBinding.findViewById(R.id.txtCancel)
 
-        val homeFragment = HomeFragment()
-        val bundle = Bundle()
-
-        val fragmentManager = parentFragmentManager
         btnCancel.setOnClickListener {
             dialogHistoryPopUp.dismiss()
         }
         btnConfirm.setOnClickListener {
-//            bundle.putString(HomeFragment.CONFIRM, "confirm")
-//            homeFragment.arguments = bundle
-//            fragmentManager.beginTransaction().replace(R.id.nav_host_fragment_activity_main, homeFragment , HomeFragment::class.java.simpleName).addToBackStack(null).commit()
+            mainViewModel.uploadImage(token, getFile as File)
+            createDialogFood("confirm", data?.calories, data?.name)
         }
         btnUnConfirm.setOnClickListener {
-//            bundle.putString(HomeFragment.CONFIRM, "cancel")
-//            homeFragment.arguments = bundle
-//            fragmentManager.beginTransaction().setReorderingAllowed(true).replace(R.id.nav_host_fragment_activity_main, homeFragment , HomeFragment::class.java.simpleName).addToBackStack(null).commit()
+            createDialogFood("cancel", data?.calories, data?.name)
+        }
+    }
+
+    private fun createDialogFood(confirmationFood: String, calories: Int?, foodName: String?){
+        if (confirmationFood == "confirm"){
+            val dialogBinding = layoutInflater.inflate(R.layout.fragment_success_pop_up, null)
+
+            val dialogConfirmPopUp = Dialog(requireActivity())
+            dialogConfirmPopUp.setContentView(dialogBinding)
+
+            val type_food : TextView = dialogBinding.findViewById(R.id.eat_type)
+            val food_name : TextView = dialogBinding.findViewById(R.id.food_eaten)
+            val add_calories : TextView = dialogBinding.findViewById(R.id.food_cal)
+
+            type_food.text = "\"${foodName.toString()}\""
+            food_name.text = "You Already Eat ${foodName.toString()}"
+            add_calories.text = "+ ${calories.toString()} cal"
+
+            dialogConfirmPopUp.setCancelable(true)
+            dialogConfirmPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            dialogConfirmPopUp.show()
+
+            val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+            btnCancel.setOnClickListener {
+                dialogConfirmPopUp.dismiss()
+            }
+        }
+        else if(confirmationFood == "cancel"){
+            val dialogBinding = layoutInflater.inflate(R.layout.fragment_failed_pop_up, null)
+
+            val dialogCancelPopUp = Dialog(requireActivity())
+            dialogCancelPopUp.setContentView(dialogBinding)
+
+            dialogCancelPopUp.setCancelable(true)
+            dialogCancelPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            dialogCancelPopUp.show()
+
+            val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+            btnCancel.setOnClickListener {
+                dialogCancelPopUp.dismiss()
+            }
+        }
+        else if(confirmationFood == "expired"){
+            val dialogBinding = layoutInflater.inflate(R.layout.fragment_expired_pop_up, null)
+
+            val dialogExpiredPopUp = Dialog(requireActivity())
+            dialogExpiredPopUp.setContentView(dialogBinding)
+
+            dialogExpiredPopUp.setCancelable(true)
+            dialogExpiredPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+            dialogExpiredPopUp.show()
+
+            val btnCancel: ImageView = dialogBinding.findViewById(R.id.close_icon)
+            btnCancel.setOnClickListener {
+                dialogExpiredPopUp.dismiss()
+            }
         }
     }
 

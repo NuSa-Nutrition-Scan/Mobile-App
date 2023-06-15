@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.API.ApiConfig
+import com.dicoding.picodiploma.nusa_nutritionscan.API.ImageUploadResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -18,17 +19,20 @@ class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
     private val _foodDetection= MutableLiveData<FoodPredictionResponse>()
     val foodDetection: LiveData<FoodPredictionResponse> = _foodDetection
 
+    private val _imageUpload = MutableLiveData<ImageUploadResponse>()
+    val imageUpload: LiveData<ImageUploadResponse> = _imageUpload
+
     companion object{
         private const val tag = "MainViewModel"
     }
 
-    fun uploadImage(token : String, file: File){
+    fun foodPrediction(token : String, file: File){
         _isLoading.value = true
         val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
         val client = ApiConfig.getApiService()
 
-        val call = client.uploadImage(bearer = "Bearer $token", body)
+        val call = client.predictionFood(bearer = "Bearer $token", body)
         call.enqueue(object : retrofit2.Callback<FoodPredictionResponse>{
             override fun onFailure(call: retrofit2.Call<FoodPredictionResponse>, t: Throwable) {
                 _isLoading.value = false
@@ -39,6 +43,32 @@ class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
                 _isLoading.value = false
                 if (response.isSuccessful){
                     _foodDetection.postValue(response.body())
+                    print("ini adalah : ${response.body()}")
+                }
+                else{
+                    Log.e(tag, "onFailure: ${response.message()}")
+                }
+            }
+        })
+    }
+
+    fun uploadImage(token : String, file: File){
+        _isLoading.value = true
+        val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+        val client = ApiConfig.getApiService()
+
+        val call = client.uploadImage(bearer = "Bearer $token", body)
+        call.enqueue(object : retrofit2.Callback<ImageUploadResponse>{
+            override fun onFailure(call: retrofit2.Call<ImageUploadResponse>, t: Throwable) {
+                _isLoading.value = false
+                Log.e(tag, "onFailure: ${t.message}")
+            }
+
+            override fun onResponse(call: retrofit2.Call<ImageUploadResponse>, response: retrofit2.Response<ImageUploadResponse>) {
+                _isLoading.value = false
+                if (response.isSuccessful){
+                    _imageUpload.postValue(response.body())
                     print("ini adalah : ${response.body()}")
                 }
                 else{

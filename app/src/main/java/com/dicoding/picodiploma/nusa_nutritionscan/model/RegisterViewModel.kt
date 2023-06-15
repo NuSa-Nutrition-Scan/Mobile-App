@@ -23,11 +23,6 @@ class RegisterViewModel (private val pref: UserPreferenceDatastore): ViewModel()
     private val tag = RegisterViewModel::class.java.simpleName
 
     fun register(name: String, email: String, password: String){
-        print("""
-            name: ${name},
-            email: ${email},
-            password: ${password}
-        """.trimIndent() + "\n")
         val data = mapOf(
             "name" to name,
             "email" to email,
@@ -41,7 +36,6 @@ class RegisterViewModel (private val pref: UserPreferenceDatastore): ViewModel()
         val client = ApiConfig.getApiService().Register(requestBody)
         client.enqueue(object : Callback<SignUpResponse> {
             override fun onResponse(call: Call<SignUpResponse>, response: Response<SignUpResponse>) {
-                print(response.message() + "\n" + response.code()+ "\n")
                 when(response.code()){
                     400 -> error.postValue("400")
                     201 -> message.postValue("201")

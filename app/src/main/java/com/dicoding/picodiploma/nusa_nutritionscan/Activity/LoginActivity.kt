@@ -76,7 +76,16 @@ class LoginActivity : AppCompatActivity() {
                     login.data?.name.toString(),
                     login.data?.id.toString(),
                     login.data?.token.toString(),
-                    login.data?.refreshToken.toString()
+                    login.data?.refresh_token.toString(),
+                    login.data?.sex.toString(),
+                    login.data?.weight!!.toInt(),
+                    login.data?.eat_per_day!!.toInt(),
+                    login.data?.calories_target!!.toInt(),
+                    login.data?.has_been_updated == true,
+                    login.data?.expires_in.toString(),
+                    login.data?.age!!.toInt(),
+                    login.data?.email.toString(),
+                    login.data?.height!!.toInt()
                 )
             }
 
@@ -90,11 +99,18 @@ class LoginActivity : AppCompatActivity() {
                     alertDialog.show()
                     Handler(Looper.getMainLooper()).postDelayed({
                         alertDialog.dismiss()
-                        val intentToMain = Intent(this, InputInformationActivity::class.java)
-                        intentToMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        intentToMain.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(intentToMain)
-                        finish()
+                        loginViewModel.loginResult.observe(this){ login ->
+                            if (login.data?.has_been_updated == false){
+                                val intentToInput = Intent(this, InputInformationActivity::class.java)
+                                startActivity(intentToInput)
+                                finish()
+                            }
+                            else if (login.data?.has_been_updated == true){
+                                val intentToMain = Intent(this, MainActivity::class.java)
+                                startActivity(intentToMain)
+                                finish()
+                            }
+                        }
                     }, 2000L)
                 }
             }

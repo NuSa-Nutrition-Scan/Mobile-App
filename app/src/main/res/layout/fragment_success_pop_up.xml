@@ -245,7 +245,7 @@
                     android:id="@+id/vitamin"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Vitamin"
+                    android:text="Serat"
                     android:textColor="@color/green"
                     android:textSize="18sp"
                     app:layout_constraintEnd_toStartOf="@+id/nutrion_count4"

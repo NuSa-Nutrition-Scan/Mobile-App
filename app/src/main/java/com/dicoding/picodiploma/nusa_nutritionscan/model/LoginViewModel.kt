@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.lifecycle.*
 import com.dicoding.picodiploma.nusa_nutritionscan.API.ApiConfig
 import com.dicoding.picodiploma.nusa_nutritionscan.data.Data
-import com.dicoding.picodiploma.nusa_nutritionscan.data.LogInResponse
+import com.dicoding.picodiploma.nusa_nutritionscan.data.LoginResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.data.SignUpResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import com.google.gson.Gson
@@ -23,15 +23,19 @@ class LoginViewModel (private val pref: UserPreferenceDatastore): ViewModel() {
     val message = MutableLiveData("")
     private val tag = LoginViewModel::class.simpleName
 
-    val loginResult = MutableLiveData<LogInResponse>()
+    val loginResult = MutableLiveData<LoginResponse>()
+
 
     fun getUser(): LiveData<Data> {
         return pref.getUser().asLiveData()
     }
 
-    fun saveUser(userName: String, userId: String, userToken: String, freshToken: String) {
+    fun saveUser(
+        userName: String, userId: String, userToken: String, freshToken: String,
+        sex: String, weight: Int, eaten: Int, cal: Int, update: Boolean,
+        expired: String, age: Int, email: String, height: Int) {
         viewModelScope.launch {
-            pref.saveUser(userName, userId, userToken, freshToken)
+            pref.saveUser(userName, userId, userToken, freshToken, sex, weight,eaten, cal, update, expired, age, email, height)
         }
     }
 
@@ -46,8 +50,8 @@ class LoginViewModel (private val pref: UserPreferenceDatastore): ViewModel() {
 
         val requestBody = jsonData.toRequestBody("application/json".toMediaType())
         val client = ApiConfig.getApiService().Login(requestBody)
-        client.enqueue(object : Callback<LogInResponse> {
-            override fun onResponse(call: Call<LogInResponse>, response: Response<LogInResponse>) {
+        client.enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 when (response.code()) {
                     200 -> {
                         loginResult.postValue(response.body())
@@ -60,7 +64,7 @@ class LoginViewModel (private val pref: UserPreferenceDatastore): ViewModel() {
                 _isLoading.value = false
             }
 
-            override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 _isLoading.value = true
                 Toast.makeText(null, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
@@ -100,8 +104,8 @@ class LoginViewModel (private val pref: UserPreferenceDatastore): ViewModel() {
         print(data)
         val requestBody = jsonData.toRequestBody("application/json".toMediaType())
         val client = ApiConfig.getApiService().Refresh(requestBody)
-        client.enqueue(object : Callback<LogInResponse>{
-            override fun onResponse(call: Call<LogInResponse>, response: Response<LogInResponse>) {
+        client.enqueue(object : Callback<LoginResponse>{
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful){
                     loginResult.postValue(response.body())
                 }
@@ -110,9 +114,13 @@ class LoginViewModel (private val pref: UserPreferenceDatastore): ViewModel() {
                 }
             }
 
-            override fun onFailure(call: Call<LogInResponse>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 Log.e(tag, "onFailure: ${t.message}")
             }
         })
+    }
+
+    fun updateProfile(){
+
     }
 }
