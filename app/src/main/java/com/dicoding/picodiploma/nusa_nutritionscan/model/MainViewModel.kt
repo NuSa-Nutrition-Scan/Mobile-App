@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.dicoding.picodiploma.nusa_nutritionscan.API.ApiConfig
 import com.dicoding.picodiploma.nusa_nutritionscan.API.ImageUploadResponse
 import com.dicoding.picodiploma.nusa_nutritionscan.Activity.FoodRecommendResponse
+import com.dicoding.picodiploma.nusa_nutritionscan.Activity.RecomItem
+import com.dicoding.picodiploma.nusa_nutritionscan.Activity.Top15Item
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -26,8 +28,11 @@ class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
     private val _imageUpload = MutableLiveData<ImageUploadResponse>()
     val imageUpload: LiveData<ImageUploadResponse> = _imageUpload
 
-    private val _listFood = MutableLiveData<List<FoodRecommendResponse>>()
-    val listFood: LiveData<List<FoodRecommendResponse>> = _listFood
+    private val _listFoodTop = MutableLiveData<List<Top15Item>>()
+    val listFoodTop: LiveData<List<Top15Item>> = _listFoodTop
+
+    private val _listFoodRec = MutableLiveData<List<RecomItem>>()
+    val listFoodRec: LiveData<List<RecomItem>> = _listFoodRec
 
     companion object{
         private const val tag = "MainViewModel"
@@ -92,7 +97,8 @@ class MainViewModel (private val pref: UserPreferenceDatastore): ViewModel(){
             override fun onResponse(call: Call<FoodRecommendResponse>, response: Response<FoodRecommendResponse>) {
                 _isLoading.value = false
                 if (response.isSuccessful){
-                    _listFood.value = response.body() as List<FoodRecommendResponse>
+                    _listFoodTop.value = response.body()?.data?.top15 as List<Top15Item>
+                    _listFoodRec.value = response.body()?.data?.recom as List<RecomItem>
                 }
                 else{
                     Log.e(tag, "onFailure: ${response.message()}")

@@ -12,6 +12,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.dicoding.picodiploma.nusa_nutritionscan.FoodAdapter
 import com.dicoding.picodiploma.nusa_nutritionscan.R
 import com.dicoding.picodiploma.nusa_nutritionscan.data.UserPreferenceDatastore
 import com.dicoding.picodiploma.nusa_nutritionscan.data.dataStore
@@ -36,22 +39,17 @@ class HomeFragment : Fragment() {
         var CONFIRM = "confirm_food"
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        loginViewModel.getUser().observe(viewLifecycleOwner){
-            token = it.token.toString()
-        }
-
-        mainViewModel.foodRecommend(token)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         totalCaloriesToday = 0
         binding.totalCalories.text = "$totalCaloriesToday cal"
+
+        loginViewModel.getUser().observe(viewLifecycleOwner){
+            token = it.token.toString()
+            mainViewModel.foodRecommend(token)
+        }
 
         return root
     }
@@ -61,14 +59,25 @@ class HomeFragment : Fragment() {
 
         val btnHistory: Button = view.findViewById(R.id.history_button)
 
+        val layoutManager = LinearLayoutManager(requireActivity()).apply {
+            orientation = LinearLayoutManager.HORIZONTAL
+        }
+        val itemDecoration = DividerItemDecoration(requireActivity(), layoutManager.orientation)
+        binding.apply {
+            rvFoodRecommend.layoutManager = layoutManager
+            rvFoodRecommend.addItemDecoration(itemDecoration)
+        }
+
         mainViewModel.let {viewModel ->
             viewModel.foodDetection.observe(viewLifecycleOwner){
                 Toast.makeText(requireActivity(), "calories: ${it.data?.calories.toString()}", Toast.LENGTH_SHORT).show()
                 changeCalories(it.data?.calories)
+                mainViewModel.foodRecommend(token)
             }
 
-            viewModel.listFood.observe(viewLifecycleOwner){
-//               disini akan dibuat fungsi penghubung adapter untuk menampilkan data recommend
+            viewModel.listFoodTop.observe(viewLifecycleOwner){
+                val adapter = FoodAdapter(it)
+                binding.rvFoodRecommend.adapter = adapter
             }
         }
 

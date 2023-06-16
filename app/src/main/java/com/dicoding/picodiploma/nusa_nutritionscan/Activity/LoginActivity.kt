@@ -79,13 +79,13 @@ class LoginActivity : AppCompatActivity() {
                     login.data?.refresh_token.toString(),
                     login.data?.sex.toString(),
                     login.data?.weight!!.toInt(),
-                    login.data?.eat_per_day!!.toInt(),
-                    login.data?.calories_target!!.toInt(),
-                    login.data?.has_been_updated == true,
-                    login.data?.expires_in.toString(),
-                    login.data?.age!!.toInt(),
-                    login.data?.email.toString(),
-                    login.data?.height!!.toInt()
+                    login.data.eat_per_day!!.toInt(),
+                    login.data.calories_target!!.toInt(),
+                    login.data.has_been_updated == true,
+                    login.data.expires_in.toString(),
+                    login.data.age!!.toInt(),
+                    login.data.email.toString(),
+                    login.data.height!!.toInt()
                 )
             }
 
@@ -146,6 +146,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun progressValue(isLoading: Boolean){
-        binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }

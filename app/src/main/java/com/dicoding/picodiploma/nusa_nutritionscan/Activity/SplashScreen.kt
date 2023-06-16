@@ -30,12 +30,14 @@ class SplashScreen : AppCompatActivity() {
 
         loginViewModel.getUser().observe(this){
             if (it.name!!.isEmpty()){
+                @Suppress("DEPRECATION")
                 Handler().postDelayed({
                     val intentToLogin = Intent(this@SplashScreen, LoginActivity::class.java)
                     startActivity(intentToLogin)
                     finish()
                 }, 2000L)
             } else{
+                @Suppress("DEPRECATION")
                 Handler().postDelayed({
                     val intentToMain = Intent(this@SplashScreen, MainActivity::class.java)
                     startActivity(intentToMain)
