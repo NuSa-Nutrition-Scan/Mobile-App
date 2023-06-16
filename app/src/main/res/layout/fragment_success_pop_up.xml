@@ -249,7 +249,7 @@
                     android:textColor="@color/green"
                     android:textSize="18sp"
                     app:layout_constraintEnd_toStartOf="@+id/nutrion_count4"
-                    app:layout_constraintHorizontal_bias="0.097"
+                    app:layout_constraintHorizontal_bias="0.098"
                     app:layout_constraintStart_toEndOf="@+id/dot_point4"
                     app:layout_constraintTop_toTopOf="parent" />
 

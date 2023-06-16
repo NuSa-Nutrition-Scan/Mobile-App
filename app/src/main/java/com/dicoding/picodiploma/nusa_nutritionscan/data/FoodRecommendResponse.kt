@@ -18,7 +18,8 @@ data class RecomItem(
 )
 
 data class Top15Item(
+	val id: String? = null,
 	val name: String? = null,
-	val id: String? = null
+	val img: String? = null
 )
 

@@ -142,14 +142,14 @@ class DashboardFragment : Fragment() {
         }
         btnConfirm.setOnClickListener {
             mainViewModel.uploadImage(token, getFile as File)
-            createDialogFood("confirm", data?.calories, data?.name)
+            createDialogFood("confirm", data)
         }
         btnUnConfirm.setOnClickListener {
-            createDialogFood("cancel", data?.calories, data?.name)
+            createDialogFood("cancel", data)
         }
     }
 
-    private fun createDialogFood(confirmationFood: String, calories: Int?, foodName: String?){
+    private fun createDialogFood(confirmationFood: String, data: Data?){
         if (confirmationFood == "confirm"){
             val dialogBinding = layoutInflater.inflate(R.layout.fragment_success_pop_up, null)
 
@@ -159,10 +159,26 @@ class DashboardFragment : Fragment() {
             val type_food : TextView = dialogBinding.findViewById(R.id.eat_type)
             val food_name : TextView = dialogBinding.findViewById(R.id.food_eaten)
             val add_calories : TextView = dialogBinding.findViewById(R.id.food_cal)
+            val protein: TextView = dialogBinding.findViewById(R.id.nutrion_count1)
+            val carbo: TextView = dialogBinding.findViewById(R.id.nutrion_count2)
+            val lemak: TextView = dialogBinding.findViewById(R.id.nutrion_count3)
+            val serat: TextView = dialogBinding.findViewById(R.id.nutrion_count4)
+            val air: TextView = dialogBinding.findViewById(R.id.nutrion_count5)
 
-            type_food.text = "\"${foodName.toString()}\""
-            food_name.text = "You Already Eat ${foodName.toString()}"
-            add_calories.text = "+ ${calories.toString()} cal"
+            val value_protein = if(data?.protein == null) 0 else data.protein
+            val value_carbo = if(data?.karbohidrat == null) 0 else data.karbohidrat
+            val value_lemak = if(data?.lemak == null) 0 else data.lemak
+            val value_serat = if(data?.vitamin == null) 0 else data.vitamin
+            val value_air = if(data?.mineral == null) 0 else data.mineral
+
+            type_food.text = "\"${data?.name.toString()}\""
+            food_name.text = "You Already Eat ${data?.name.toString()}"
+            add_calories.text = "+ ${data?.calories.toString()} cal"
+            protein.text = "${value_protein.toString()} %"
+            carbo.text = "${value_carbo.toString()} %"
+            lemak.text = "${value_lemak.toString()} %"
+            serat.text = "${value_serat.toString()} %"
+            air.text = "${value_air.toString()} %"
 
             dialogConfirmPopUp.setCancelable(true)
             dialogConfirmPopUp.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))

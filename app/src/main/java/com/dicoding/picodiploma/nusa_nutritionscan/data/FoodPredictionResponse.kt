@@ -9,6 +9,12 @@ data class FoodPredictionResponse(
 data class Data(
 	val id: String? = null,
 	val name: String? = null,
-	val calories: Int? = null
+	val calories: Int? = null,
+	val karbohidrat: Int? = null,
+	val lemak: Int? = null,
+	val mineral: Int? = null,
+	val protein: Int? = null,
+	val vitamin: Int? = null,
+	val img: String? = null
 )
 
