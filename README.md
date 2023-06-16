@@ -14,12 +14,6 @@ The mobile app serves as the primary interface for the NuSa Mobile application. 
 + Food Recommendation
 
 ## Overview
-![signup page](img/foto1.jpg)
-![login pag](img/foto2.jpg)
-![input information page](img/foto3.jpg)
-![intent camera page](img/foto4.jpg)
-![get image page](img/foto5.jpg)
-![get response page](img/foto6.jpg)
 ![main page](img/foto7.jpg)
 
 ## Getting Started
